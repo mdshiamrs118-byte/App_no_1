@@ -1,6 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Gemini Wrapper</string>
-    <string name="tab_gemini">Gemini</string>
-    <string name="tab_chat">Custom chat</string>
+    <string name="app_name">Simple Browser</string>
 </resources>
