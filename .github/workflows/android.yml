@@ -1,4 +1,4 @@
-name: Build OpenBrows APK
+name: Build OpenBrows. APK
 
 on:
   push:
