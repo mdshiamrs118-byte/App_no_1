@@ -1,5 +1,22 @@
 <resources>
-    <style name="Theme.SimpleBrowser" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">#1A73E8</item>
+    <style name="Theme.Gallery" parent="Theme.MaterialComponents.NoActionBar">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:statusBarColor">@color/bg</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+    </style>
+    <style name="CardDialog" parent="Theme.MaterialComponents.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@style/DialogAnim</item>
+    </style>
+    <style name="DialogAnim">
+        <item name="android:windowEnterAnimation">@anim/pop_in</item>
+        <item name="android:windowExitAnimation">@anim/pop_out</item>
+    </style>
+    <style name="IconBtn">
+        <item name="android:layout_width">44dp</item><item name="android:layout_height">44dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:padding">10dp</item><item name="android:tint">@color/text</item>
     </style>
 </resources>
