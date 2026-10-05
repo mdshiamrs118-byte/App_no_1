@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="glass_bg">#33FFFFFF</color>
+    <color name="glass_border">#44FFFFFF</color>
+    <color name="accent">#7C4DFF</color>
+    <color name="surface_dark">#1A1A2E</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#B0B0C0</color>
+    <color name="tab_active">#7C4DFF</color>
+    <color name="tab_inactive">#66FFFFFF</color>
+</resources>

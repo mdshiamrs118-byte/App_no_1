@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/glass_bg"
+    android:padding="8dp"
+    android:elevation="12dp">
+
+    <TextView android:id="@+id/menuNewTab"
+        android:layout_width="match_parent" android:layout_height="48dp"
+        android:gravity="center_vertical" android:paddingHorizontal="16dp"
+        android:text="New Tab" android:textColor="@color/text_primary"
+        android:background="?attr/selectableItemBackground"/>
+
+    <TextView android:id="@+id/menuRefresh"
+        android:layout_width="match_parent" android:layout_height="48dp"
+        android:gravity="center_vertical" android:paddingHorizontal="16dp"
+        android:text="Refresh" android:textColor="@color/text_primary"
+        android:background="?attr/selectableItemBackground"/>
+
+    <TextView android:id="@+id/menuShare"
+        android:layout_width="match_parent" android:layout_height="48dp"
+        android:gravity="center_vertical" android:paddingHorizontal="16dp"
+        android:text="Share" android:textColor="@color/text_primary"
+        android:background="?attr/selectableItemBackground"/>
+
+    <TextView android:id="@+id/menuSettings"
+        android:layout_width="match_parent" android:layout_height="48dp"
+        android:gravity="center_vertical" android:paddingHorizontal="16dp"
+        android:text="Settings" android:textColor="@color/text_primary"
+        android:background="?attr/selectableItemBackground"/>
+
+    <TextView android:id="@+id/menuCloseTab"
+        android:layout_width="match_parent" android:layout_height="48dp"
+        android:gravity="center_vertical" android:paddingHorizontal="16dp"
+        android:text="Close Tab" android:textColor="@color/text_primary"
+        android:background="?attr/selectableItemBackground"/>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp"
+        android:background="@color/glass_border" android:layout_marginVertical="4dp"/>
+
+    <TextView android:id="@+id/menuExit"
+        android:layout_width="match_parent" android:layout_height="48dp"
+        android:gravity="center_vertical" android:paddingHorizontal="16dp"
+        android:text="Exit" android:textColor="#FF6B6B"
+        android:background="?attr/selectableItemBackground"/>
+</LinearLayout>
