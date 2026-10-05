@@ -23,9 +23,16 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # IMPORTANT: do NOT include the legacy "tools" package.
+          # The default value is "tools platform-tools" which is broken
+          # because Google removed the "tools" package from the SDK repo.
+          packages: 'platform-tools'
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: false
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.2'
 
