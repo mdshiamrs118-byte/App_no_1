@@ -1,4 +1,7 @@
-plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.kotlin.android) apply false
+// Root build.gradle.kts (fallback if DSL fails)
+buildscript {
+    dependencies {
+        classpath(libs.android.gradle.plugin)
+        classpath(libs.kotlin.gradle.plugin)
+    }
 }
