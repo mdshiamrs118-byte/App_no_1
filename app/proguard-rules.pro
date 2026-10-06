@@ -1,5 +1,4 @@
-# OpenBrows ProGuard rules
--keep class com.openbrows.app.** { *; }
--keepclassmembers class * {
-    @android.webkit.JavascriptInterface <methods>;
-}
+-keep class com.openmedia.app.PlaybackService { *; }
+-dontwarn org.checkerframework.**
+-dontwarn javax.annotation.**
+-dontwarn org.codehaus.mojo.animal_sniffer.**

@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">OpenBrows</string>
-    <string name="url_hint">Search or type URL</string>
+    <string name="app_name">Open Media</string>
 </resources>
