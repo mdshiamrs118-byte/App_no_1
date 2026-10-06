@@ -2,14 +2,15 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -18,18 +19,24 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platform-tools
+            platforms;android-34
+            build-tools;34.0.0
+            cmdline-tools;latest
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: "8.7"
 
       - name: Build debug + release APKs
-        run: gradle assembleDebug assembleRelease --stacktrace
+        run: ./gradlew assembleDebug assembleRelease --stacktrace
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
@@ -37,7 +44,7 @@ jobs:
           name: OpenMedia-debug
           path: app/build/outputs/apk/debug/*.apk
 
-      - name: Upload release APK (small, minified)
+      - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
           name: OpenMedia-release
