@@ -1,0 +1,18 @@
+package com.w2sv.domain.model.movedestination
+
+import android.content.Context
+import androidx.documentfile.provider.DocumentFile
+import com.w2sv.common.uri.DocumentUri
+
+interface MoveDestinationApi {
+    val documentUri: DocumentUri
+    fun fileName(context: Context): String
+
+    fun uiRepresentation(context: Context): String
+
+    /**
+     * @see DocumentUri.documentFile
+     */
+    fun documentFile(context: Context): DocumentFile =
+        documentUri.documentFile(context)
+}

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Critical Permissions -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="AllFilesAccessPolicy,ScopedStorage" />
+
+    <!-- Android 10 (API 29) only: MANAGE_EXTERNAL_STORAGE doesn't exist there -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29"
+        tools:ignore="ScopedStorage" />
+
+    <!-- System Permissions -> granted automatically -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application>
+
+        <!-- Services -->
+        <service
+            android:name="com.w2sv.navigator.FileNavigator"
+            android:foregroundServiceType="specialUse">
+
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="A service that registers new files entering the file system and emits respective notifications, via which the user can move those new files to a chosen location." />
+        </service>
+
+        <service
+            android:name="com.w2sv.navigator.moving.BatchMoveService"
+            android:exported="false" />
+
+        <!-- Exported System Broadcast Receivers -->
+        <receiver
+            android:name="com.w2sv.navigator.system_broadcastreceiver.PowerSaveModeChangedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.os.action.POWER_SAVE_MODE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.w2sv.navigator.system_broadcastreceiver.BootCompletedReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Non-exported Broadcast Receivers -->
+        <receiver android:name="com.w2sv.navigator.moving.MoveBroadcastReceiver" />
+
+        <!-- Activities -->
+        <activity
+            android:name="com.w2sv.navigator.moving.activity.FileDestinationPickerActivity"
+            android:taskAffinity="com.w2sv.filenavigator.moving"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.w2sv.navigator.moving.activity.BatchMoveDestinationPickerActivity"
+            android:taskAffinity="com.w2sv.filenavigator.moving"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.w2sv.navigator.moving.activity.QuickMoveDestinationAccessPermissionActivity"
+            android:taskAffinity="com.w2sv.filenavigator.moving"
+            android:theme="@style/Theme.Transparent" />
+        <activity
+            android:name="com.w2sv.navigator.moving.activity.ViewFileIfPresentActivity"
+            android:noHistory="true"
+            android:taskAffinity="com.w2sv.filenavigator.viewing"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <activity
+            android:name="com.w2sv.navigator.moving.activity.FileDeletionActivity"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity="com.w2sv.filenavigator.deletion"
+            android:theme="@style/Theme.Transparent" />
+    </application>
+
+</manifest>

@@ -1,0 +1,168 @@
+package com.w2sv.filenavigator.ui.screen.appsettings
+
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.w2sv.domain.model.Theme
+import com.w2sv.filenavigator.ui.designsystem.rememberBorderAnimationState
+import com.w2sv.modules.common.R
+
+@Composable
+fun ThemeSelectionRow(
+    selected: Theme,
+    onSelected: (Theme) -> Unit,
+    modifier: Modifier = Modifier,
+    buttonSize: Dp = 44.dp,
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center
+) {
+    val indicators = remember { themeIndicatorProperties() }
+    Row(
+        modifier = modifier,
+        horizontalArrangement = horizontalArrangement,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        indicators.forEach { indicator ->
+            ThemeIndicator(
+                properties = indicator,
+                isSelected = { indicator.theme == selected },
+                onClick = { onSelected(indicator.theme) },
+                buttonModifier = Modifier.size(buttonSize)
+            )
+        }
+    }
+}
+
+private fun themeIndicatorProperties() =
+    listOf(
+        ThemeIndicatorProperties(
+            theme = Theme.Light,
+            labelRes = R.string.light,
+            buttonColoring = ButtonColor.Uniform(Color.White)
+        ),
+        ThemeIndicatorProperties(
+            theme = Theme.Default,
+            labelRes = R.string._default,
+            buttonColoring = ButtonColor.Gradient(
+                Brush.linearGradient(
+                    0.5f to Color.White,
+                    0.5f to Color.Black
+                )
+            )
+        ),
+        ThemeIndicatorProperties(
+            theme = Theme.Dark,
+            labelRes = R.string.dark,
+            buttonColoring = ButtonColor.Uniform(Color.Black)
+        )
+    )
+
+@Immutable
+private data class ThemeIndicatorProperties(val theme: Theme, @StringRes val labelRes: Int, val buttonColoring: ButtonColor)
+
+@Immutable
+private sealed interface ButtonColor {
+    val containerColor: Color
+
+    @Immutable
+    data class Uniform(override val containerColor: Color) : ButtonColor
+
+    @Immutable
+    data class Gradient(val brush: Brush) : ButtonColor {
+        override val containerColor: Color = Color.Transparent
+    }
+}
+
+@Composable
+private fun ThemeIndicator(
+    properties: ThemeIndicatorProperties,
+    isSelected: () -> Boolean,
+    modifier: Modifier = Modifier,
+    buttonModifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(id = properties.labelRes),
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        ThemeButton(
+            buttonColor = properties.buttonColoring,
+            contentDescription = stringResource(id = R.string.theme_button_cd).format(
+                stringResource(id = properties.labelRes)
+            ),
+            onClick = onClick,
+            isSelected = isSelected,
+            modifier = buttonModifier
+        )
+    }
+}
+
+@Composable
+private fun ThemeButton(
+    buttonColor: ButtonColor,
+    contentDescription: String,
+    onClick: () -> Unit,
+    isSelected: () -> Boolean,
+    modifier: Modifier = Modifier
+) {
+    val borderAnimationState = rememberBorderAnimationState(
+        enabled = isSelected(),
+        startWidth = 0.5.dp,
+        endWidth = 3.dp,
+        startColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        endColor = MaterialTheme.colorScheme.primary
+    )
+
+    BoxWithConstraints(contentAlignment = Alignment.Center, modifier = modifier) {
+        val size = with(LocalDensity.current) { constraints.maxWidth.toDp() }
+        Button(
+            modifier = Modifier
+                .semantics {
+                    this.contentDescription = contentDescription
+                }
+                .size(size)
+                .drawBehind {
+                    if (buttonColor is ButtonColor.Gradient) {
+                        drawCircle(
+                            brush = buttonColor.brush,
+                            radius = (constraints.maxWidth / 2).toFloat()
+                        )
+                    }
+                },
+            colors = ButtonDefaults.buttonColors(containerColor = buttonColor.containerColor),
+            onClick = onClick,
+            shape = CircleShape,
+            border = borderAnimationState.borderStroke
+        ) {}
+    }
+}

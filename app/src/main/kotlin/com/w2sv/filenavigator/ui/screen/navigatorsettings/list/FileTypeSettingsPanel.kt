@@ -1,0 +1,156 @@
+package com.w2sv.filenavigator.ui.screen.navigatorsettings.list
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.w2sv.domain.model.filetype.FileType
+import com.w2sv.domain.model.filetype.PresetFileType
+import com.w2sv.domain.model.filetype.SourceType
+import com.w2sv.domain.model.navigatorconfig.AutoMoveConfig
+import com.w2sv.domain.model.navigatorconfig.NavigatorConfig
+import com.w2sv.domain.model.navigatorconfig.SourceConfig
+import com.w2sv.filenavigator.ui.designsystem.FileTypeIcon
+import com.w2sv.filenavigator.ui.designsystem.MoreIconButtonWithDropdownMenu
+import com.w2sv.filenavigator.ui.modelext.color
+import com.w2sv.filenavigator.ui.util.PreviewOf
+import com.w2sv.modules.common.R
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.toImmutableMap
+
+@Composable
+fun FileTypeSettingsPanel(
+    fileType: FileType,
+    setSourceAutoMoveConfigs: ((AutoMoveConfig) -> Unit)?,
+    sourceTypeConfigMap: ImmutableMap<SourceType, SourceConfig>,
+    onSourceCheckedChange: (SourceType, Boolean) -> Unit,
+    setSourceAutoMoveConfig: (SourceType, AutoMoveConfig) -> Unit,
+    showFileTypeConfigurationDialog: (FileType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        FileTypeSurface(
+            fileType = fileType,
+            setSourceAutoMoveConfigs = setSourceAutoMoveConfigs,
+            showFileTypeConfigurationDialog = showFileTypeConfigurationDialog
+        )
+        FileTypeSourcesSettingsSurface(
+            fileType = fileType,
+            sourceTypeConfigMap = sourceTypeConfigMap,
+            onSourceCheckedChange = onSourceCheckedChange,
+            setSourceAutoMoveConfig = setSourceAutoMoveConfig
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun FileTypeSettingsPanelPrev() {
+    PreviewOf {
+        val imageFileType = PresetFileType.Image.toFileType()
+        FileTypeSettingsPanel(
+            fileType = imageFileType,
+            setSourceAutoMoveConfigs = {},
+            sourceTypeConfigMap = NavigatorConfig.default.fileTypeConfig(imageFileType).sourceTypeConfigMap.toImmutableMap(),
+            onSourceCheckedChange = { _, _ -> },
+            setSourceAutoMoveConfig = { _, _ -> },
+            showFileTypeConfigurationDialog = {}
+        )
+    }
+}
+
+@Composable
+private fun FileTypeSurface(
+    fileType: FileType,
+    setSourceAutoMoveConfigs: ((AutoMoveConfig) -> Unit)?,
+    showFileTypeConfigurationDialog: (FileType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val selectAutoMoveDestination = setSourceAutoMoveConfigs?.let { nonNullSetSourceAutoMoveConfigs ->
+        rememberSelectAutoMoveDestination(
+            onDestinationSelected = { destination ->
+                nonNullSetSourceAutoMoveConfigs(AutoMoveConfig(enabled = true, destination = destination))
+            }
+        )
+    }
+
+    Surface(
+        tonalElevation = 2.dp,
+        shape = MaterialTheme.shapes.small,
+        modifier = modifier
+            .fillMaxWidth()
+            .height(52.dp)
+    ) {
+        FileTypeSurfaceContent(
+            fileType = fileType,
+            setSourceAutoMoveConfigs = selectAutoMoveDestination?.let { { it.launch(null) } },
+            showFileTypeConfigurationDialog = showFileTypeConfigurationDialog
+        )
+    }
+}
+
+@Composable
+private fun FileTypeSurfaceContent(
+    fileType: FileType,
+    setSourceAutoMoveConfigs: (() -> Unit)?,
+    showFileTypeConfigurationDialog: (FileType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        FileTypeIcon(
+            fileType = fileType,
+            tint = fileType.color,
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .size(34.dp)
+        )
+        Text(
+            text = fileType.name(context),
+            fontSize = 18.sp
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        setSourceAutoMoveConfigs?.let {
+            MoreIconButtonWithDropdownMenu {
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(R.string.set_auto_move_destination_for_all_sources)) },
+                    onClick = {
+                        collapseMenu()
+                        setSourceAutoMoveConfigs()
+                    },
+                    leadingIcon = { Icon(painterResource(R.drawable.ic_folder_destination_24), contentDescription = null) }
+                )
+            }
+        }
+        IconButton(onClick = { showFileTypeConfigurationDialog(fileType) }) {
+            Icon(
+                imageVector = Icons.Outlined.Settings,
+                contentDescription = stringResource(R.string.open_the_file_type_configuration_dialog)
+            )
+        }
+    }
+}

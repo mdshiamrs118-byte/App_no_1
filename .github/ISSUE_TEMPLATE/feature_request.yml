@@ -1,0 +1,11 @@
+name: "Feature Request"
+description: Request a new feature the app is missing
+title: "[Feature Request] "
+labels: [ "enhancement" ]
+body:
+  - type: textarea
+    attributes:
+      label: Overview
+      description: Please describe the feature you'd like to see implemented.
+    validations:
+      required: true

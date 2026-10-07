@@ -1,0 +1,136 @@
+package com.w2sv.navigator.moving.activity
+
+import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.coroutineScope
+import com.w2sv.androidutils.content.intent
+import com.w2sv.androidutils.res.getHtmlFormattedText
+import com.w2sv.androidutils.widget.showToast
+import com.w2sv.common.logging.LoggingComponentActivity
+import com.w2sv.composed.core.rememberStyledTextResource
+import com.w2sv.designsystem.DialogButton
+import com.w2sv.designsystem.HighlightedDialogButton
+import com.w2sv.designsystem.theme.AppTheme
+import com.w2sv.kotlinutils.threadUnsafeLazy
+import com.w2sv.modules.common.R
+import com.w2sv.navigator.domain.moving.MoveFileNotificationData
+import com.w2sv.navigator.domain.notifications.NotificationEventHandler
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+/**
+ * Gets invoked when the user clicks the 'Delete file' notification action on the 'Move file' notification.
+ * Must receive [MoveFileNotificationData] through its intent.
+ *
+ * Shows a file deletion confirmation dialog. If the user confirms the deletion,
+ * it attempts to carry out the deletion, shows a toast informing about the result, cancels the 'Move file' notification
+ * corresponding to the file if it was successful and finishes. If the user declines the deletion or cancels the dialog by
+ * clicking outside of its area, it finishes right away.
+ */
+@AndroidEntryPoint
+internal class FileDeletionActivity : LoggingComponentActivity() {
+
+    @Inject
+    lateinit var notificationEventHandler: NotificationEventHandler
+
+    private val args by threadUnsafeLazy { MoveFileNotificationData(intent) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContent {
+            AppTheme {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    DeletionConfirmationDialog(
+                        fileName = args.navigatableFile.mediaStoreEntry.fileName,
+                        onDismissRequest = { finishAndRemoveTask() },
+                        onConfirmation = { launchFileDeletion() }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun launchFileDeletion() {
+        lifecycle.coroutineScope.launch {
+            val successfullyDeleted = with(Dispatchers.IO) {
+                contentResolver.delete(args.navigatableFile.mediaUri.uri, null) > 0
+            }
+            with(Dispatchers.Main) {
+                if (successfullyDeleted) {
+                    showToast(
+                        resources.getHtmlFormattedText(
+                            R.string.successfully_deleted,
+                            args.navigatableFile.mediaStoreEntry.fileName
+                        )
+                    )
+                    notificationEventHandler(args.cancelNotificationEvent)
+                } else {
+                    showToast(
+                        resources.getHtmlFormattedText(
+                            R.string.couldn_t_delete,
+                            args.navigatableFile.mediaStoreEntry.fileName
+                        )
+                    )
+                }
+
+                finishAndRemoveTask()
+            }
+        }
+    }
+
+    companion object {
+        fun intent(args: MoveFileNotificationData, context: Context): Intent =
+            intent<FileDeletionActivity>(context)
+                .putExtra(MoveFileNotificationData.EXTRA, args)
+    }
+}
+
+@Composable
+private fun DeletionConfirmationDialog(
+    fileName: String,
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(
+        modifier = modifier,
+        icon = { Icon(Icons.Rounded.Warning, null, modifier = Modifier.size(32.dp)) },
+        text = {
+            Text(
+                rememberStyledTextResource(
+                    R.string.file_deletion_confirmation_dialog_message,
+                    fileName
+                )
+            )
+        },
+        onDismissRequest = onDismissRequest,
+        confirmButton = { HighlightedDialogButton(text = stringResource(R.string.yes), onClick = onConfirmation) },
+        dismissButton = { DialogButton(stringResource(R.string.no), onClick = onDismissRequest) }
+    )
+}
+
+@Preview
+@Composable
+private fun Prev() {
+    AppTheme {
+        DeletionConfirmationDialog("someFile", {}, {})
+    }
+}
